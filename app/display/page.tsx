@@ -31,7 +31,9 @@ export default function Display() {
     key.current = new URLSearchParams(location.search).get("key") || "";
     load();
     const poll = setInterval(load, 30000);            // safety net if the socket silently dies
-    const reload = setInterval(() => location.reload(), 6 * 3600 * 1000); // clears memory leaks on 24/7 kiosks
+   const reload = setInterval(async () => {
+    try { const r = await fetch(location.href, { method: "HEAD", cache: "no-store" }); if (r.ok) location.reload(); } catch {}
+  }, 6 * 3600 * 1000);
     const p = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
       channelAuthorization: { endpoint: "/api/pusher/auth", transport: "ajax", params: { key: key.current } },
