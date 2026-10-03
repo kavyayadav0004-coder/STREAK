@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-type M = { id: string; name: string; cardId: string; currentStreak: number; maxStreak: number; lastScanDay: string | null; frozenUntil: string | null; active: boolean };
+type M = { id: string; name: string; cardId: string; currentStreak: number; maxStreak: number; lastScanDay: string | null; frozenUntil: string | null; active: boolean; showOnBoard: boolean };
 const api = (url: string, method: string, body?: object) =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body && JSON.stringify(body) }).then(async (r) => ({ ok: r.ok, data: await r.json() }));
 
@@ -28,14 +28,15 @@ export default function Admin() {
         <div className="f"><input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} /><input placeholder="Card / QR / RFID ID" value={card} onChange={(e) => setCard(e.target.value)} /><button onClick={add}>Add</button></div>
       </div>
       <div className="panel"><h2>Members ({ms.length})</h2>
-        <table><thead><tr><th>Name</th><th>Card</th><th>Streak</th><th>Best</th><th>Last</th><th>Freeze until</th><th></th></tr></thead><tbody>
+        <table><thead><tr><th>Name</th><th>Card</th><th>Streak</th><th>Best</th><th>Last</th><th>Freeze until</th><th>Board</th><th></th></tr></thead><tbody>
           {ms.map((m) => (
             <tr key={m.id} style={{ opacity: m.active ? 1 : 0.4 }}>
               <td>{m.name}</td><td>{m.cardId}</td>
-              <td><input type="number" defaultValue={m.currentStreak} onBlur={(e) => patch(m.id, { currentStreak: e.target.value })} /></td>
-              <td><input type="number" defaultValue={m.maxStreak} onBlur={(e) => patch(m.id, { maxStreak: e.target.value })} /></td>
+              <td><input type="number" defaultValue={m.currentStreak} onBlur={(e) => e.target.value !== String(m.currentStreak) && patch(m.id, { currentStreak: e.target.value })} /></td>
+              <td><input type="number" defaultValue={m.maxStreak} onBlur={(e) => e.target.value !== String(m.maxStreak) && patch(m.id, { maxStreak: e.target.value })} /></td>
               <td>{m.lastScanDay ?? "-"}</td>
-              <td><input type="date" style={{ width: 140 }} defaultValue={m.frozenUntil ?? ""} onBlur={(e) => patch(m.id, { frozenUntil: e.target.value })} /></td>
+              <td><input type="date" style={{ width: 140 }} defaultValue={m.frozenUntil ?? ""} onBlur={(e) => e.target.value !== (m.frozenUntil ?? "") && patch(m.id, { frozenUntil: e.target.value })} /></td>
+              <td><input type="checkbox" checked={m.showOnBoard} onChange={(e) => patch(m.id, { showOnBoard: e.target.checked })} /></td>
               <td className="f"><button className="g" onClick={() => tap(m.cardId)}>Tap</button><button className="g" onClick={() => patch(m.id, { active: !m.active })}>{m.active ? "Pause" : "Resume"}</button><button className="d" onClick={() => del(m.id)}>Del</button></td>
             </tr>))}
         </tbody></table>

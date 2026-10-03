@@ -1,6 +1,7 @@
 import { prisma } from "./db";
 import { dayKey, nextStreak } from "./streak";
 import { emit } from "./realtime";
+import { displayName } from "./format";
 
 export async function processScan(cardId: string) {
   const m = await prisma.member.findUnique({ where: { cardId } });
@@ -24,6 +25,7 @@ export async function processScan(cardId: string) {
 
   await prisma.scanLog.create({ data: { memberId: m.id, day: today, counted: true, streakAfter: r.currentStreak } });
   const isRecord = r.currentStreak > m.maxStreak && r.currentStreak > 1;
-  await emit("scan", { name: m.name, streak: r.currentStreak, max: r.maxStreak, isRecord });
+  if (m.showOnBoard) await emit("scan", { name: displayName(m.name), streak: r.currentStreak, max: r.maxStreak, isRecord });
+  else await emit("refresh");
   return { status: 200 as const, body: { counted: true, streak: r.currentStreak, max: r.maxStreak } };
 }

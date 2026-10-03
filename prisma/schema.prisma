@@ -1,4 +1,7 @@
-generator client { provider = "prisma-client-js" }
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -11,10 +14,11 @@ model Member {
   cardId        String   @unique
   currentStreak Int      @default(0)
   maxStreak     Int      @default(0)
-  lastScanDay   String?  // YYYY-MM-DD in gym timezone
+  lastScanDay   String?
   lastScanAt    DateTime?
-  frozenUntil   String?  // YYYY-MM-DD, streak survives gaps up to this day
+  frozenUntil   String?
   active        Boolean  @default(true)
+  showOnBoard   Boolean  @default(true)
   createdAt     DateTime @default(now())
   logs          ScanLog[]
   @@index([active, currentStreak])
@@ -26,7 +30,7 @@ model ScanLog {
   member      Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
   scannedAt   DateTime @default(now())
   day         String
-  counted     Boolean  // false = same-day duplicate
+  counted     Boolean
   streakAfter Int
   @@index([memberId, scannedAt])
 }
