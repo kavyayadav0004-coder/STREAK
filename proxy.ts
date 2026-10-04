@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 export const config = { matcher: ["/admin/:path*", "/api/admin/:path*"] };
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const h = req.headers.get("authorization");
   if (h?.startsWith("Basic ") && process.env.ADMIN_PASSWORD) {
     const [u, ...p] = atob(h.slice(6)).split(":");
